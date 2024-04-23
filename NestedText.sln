@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NestedText.Tests", "NestedText.Tests\NestedText.Tests.csproj", "{F3DF68D7-2241-498C-9477-4A481AA05631}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{54624E01-49A0-49E4-A029-14797AA889EF}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NestedText", "NestedText\NestedText.csproj", "{F6CE2A55-B6DD-4F8A-BDCA-BF0BD66DDE9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3DF68D7-2241-498C-9477-4A481AA05631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3DF68D7-2241-498C-9477-4A481AA05631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3DF68D7-2241-498C-9477-4A481AA05631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3DF68D7-2241-498C-9477-4A481AA05631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6CE2A55-B6DD-4F8A-BDCA-BF0BD66DDE9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6CE2A55-B6DD-4F8A-BDCA-BF0BD66DDE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6CE2A55-B6DD-4F8A-BDCA-BF0BD66DDE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6CE2A55-B6DD-4F8A-BDCA-BF0BD66DDE9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1623472A-8286-4947-8877-F846A1737D32}
+	EndGlobalSection
+EndGlobal

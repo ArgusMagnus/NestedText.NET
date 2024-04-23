@@ -1,0 +1,27 @@
+{
+  "default repository": "home",
+  "report style": "tree",
+  "compact format": "{repo}: {size:{fmt}}.  Last back up: {last_create:ddd, MMM DD}.",
+  "normal format": "{host:\u003C8} {user:\u003C5} {config:\u003C9} {size:\u003C8.2b} {last_create:ddd, MMM DD}",
+  "date format": "D MMMM YYYY",
+  "size format": ".2b",
+  "repositories": {
+    "home": {
+      "children": "rsync borgbase"
+    },
+    "caches": {
+      "children": "cache cache@media cache@files"
+    },
+    "servers": {
+      "children": [
+        "root@dev~root",
+        "root@mail~root",
+        "root@media~root",
+        "root@web~root"
+      ]
+    },
+    "all": {
+      "children": "home caches servers"
+    }
+  }
+}
