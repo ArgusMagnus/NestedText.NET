@@ -133,7 +133,7 @@ public static class NestedTextSerializer
             {
                 if (node is not JsonArray arr)
                     throw new NestedTextException("Invalid line", parseResult?.Line ?? "", parseResult?.LineIndex ?? -1);
-                if (prevParseResult.Indent.Length == (parseResult?.Indent.Length ?? 0))
+                if (parseResult is null || prevParseResult.Indent.Length == parseResult.Indent.Length)
                     arr.Add("");
             }
         }
@@ -168,11 +168,7 @@ public static class NestedTextSerializer
                     obj[k.Key] = subNode;
                 }
                 else if (node is JsonArray arr)
-                {
-                    //if (arr.Any(x => x.GetType() != subNode.GetType()))
-                    //    throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
                     arr.Add(subNode);
-                }
                 else
                     throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
 
@@ -205,8 +201,7 @@ public static class NestedTextSerializer
                     throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
                 if (obj.ContainsKey(key.Key))
                     throw new NestedTextException($"duplicate key: {key.Key}.", parseResult.Line, parseResult.LineIndex);
-                //if (key.Value is not null)
-                //    obj[key.Key] = key.Value;
+                // added in AddPervious
             }
             else if (parseResult is ListItemParseResult)
             {
@@ -225,7 +220,6 @@ public static class NestedTextSerializer
             else
                 throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
         }
-
 
         AddPrevious(node, parseResult, prevParseResult);
 
