@@ -51,74 +51,6 @@ public static class NestedTextSerializer
     sealed record MultilineParseResult(string Line, int LineIndex, string Indent, string? Value) : ParseResult(Line, LineIndex, Indent, Value);
     sealed record CommentParseResult(string Line, int LineIndex, string Comment) : ParseResult(Line, LineIndex, "", Comment);
 
-    //static async Task<(ParseResult? ParseResult, JsonNode? Node)> Parse2(StreamReader reader, ParseResult? parseResult, int indent, NestedTextSerializerOptions options)
-    //{
-    //    var children = new List<JsonNode>();
-
-    //    static async Task<ParseResult?> NextResult(StreamReader reader, ParseResult? parseResult)
-    //    {
-    //        if (await reader.ReadLineAsync() is not string line)
-    //            return null;
-    //        return ParseLine(line, (parseResult?.LineIndex + 1) ?? 0);
-    //    }
-
-    //    for (parseResult ??= await NextResult(reader, parseResult); parseResult is not null; parseResult = await NextResult(reader, parseResult))
-    //    {
-    //        if (parseResult is CommentParseResult)
-    //            continue;
-
-    //        if (parseResult.Indent.Length < indent)
-    //            break;
-
-    //        if (parseResult.Indent.Length > indent)
-    //        {
-    //            var (nextResult, child) = await Parse2(reader, parseResult, parseResult.Indent.Length, options);
-    //            if (child is null)
-    //                throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
-    //            children.Add(child);
-    //            parseResult = nextResult;
-    //        }
-
-    //        if (parseResult is KeyParseResult key)
-    //        {
-    //            if (options.Minimal)
-    //            {
-    //                if (key.Key[0] is ' ' or '[' or '{')
-    //                    throw new NestedTextException($"invalid character '{key.Key[0]}' in key {key.Key}.", parseResult.Line, parseResult.LineIndex);
-    //                if (key.Key.StartsWith("- "))
-    //                    throw new NestedTextException($"invalid substring '- ' in key {key.Key}.", parseResult.Line, parseResult.LineIndex);
-    //                if (key.Key.Contains(": "))
-    //                    throw new NestedTextException($"invalid substring ': ' in key {key.Key}.", parseResult.Line, parseResult.LineIndex);
-    //            }
-
-    //            node ??= new JsonObject();
-    //            if (node is not JsonObject obj)
-    //                throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
-    //            if (obj.ContainsKey(key.Key))
-    //                throw new NestedTextException($"duplicate key: {key.Key}.", parseResult.Line, parseResult.LineIndex);
-    //            if (key.Value is not null)
-    //                obj[key.Key] = key.Value;
-    //        }
-    //        else if (parseResult is ListItemParseResult)
-    //        {
-    //            node ??= new JsonArray();
-    //            if (node is not JsonArray arr)
-    //                throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
-    //            if (parseResult.Value is not null)
-    //                arr.Add(parseResult.Value);
-    //        }
-    //        else if (parseResult is MultilineParseResult)
-    //        {
-    //            if (node is not null || parseResult.Value is null)
-    //                throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
-    //            (items ??= new()).Add(parseResult.Value);
-    //        }
-    //        else
-    //            throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
-    //    }
-    //}
-
-
     static async Task<(ParseResult? ParseResult, JsonNode? Node)> Parse(TextReader reader, ParseResult? parseResult, int indent, NestedTextSerializerOptions options)
     {
         ParseResult? prevParseResult = null;
@@ -180,14 +112,15 @@ public static class NestedTextSerializer
                 else
                     throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
 
-                (parseResult, prevParseResult) = (nextParseResult, parseResult);
+                //(parseResult, prevParseResult) = (nextParseResult, parseResult);
+                parseResult = nextParseResult;
                 if (parseResult is null)
                     break;
             }
 
             if (parseResult.Indent.Length < indent)
             {
-                if (prevParseResult is KeyParseResult)
+                if (prevParseResult is KeyParseResult k && node is JsonObject obj && !obj.ContainsKey(k.Key))
                     throw new NestedTextException("Invalid line", parseResult?.Line ?? "", parseResult?.LineIndex ?? -1);
                 break;
             }
