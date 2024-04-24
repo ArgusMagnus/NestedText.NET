@@ -21,21 +21,29 @@ public sealed record NestedTextSerializerOptions
 
 public static class NestedTextSerializer
 {
-    public static async Task<JsonNode?> Deserialize(Stream stream, NestedTextSerializerOptions? options = null, bool leaveOpen = false)
+    public static async Task<JsonNode?> Deserialize(TextReader reader, NestedTextSerializerOptions? options = null, bool leaveOpen = false)
     {
         options ??= NestedTextSerializerOptions.Default;
         if (!options.Minimal)
             throw new NotSupportedException($"The current implementation does not support {nameof(NestedTextSerializerOptions)}.{nameof(NestedTextSerializerOptions.Minimal)} = false");
-        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: leaveOpen);
         var (_, node) = await Parse(reader, null, 0, options);
         return node;
     }
 
-    public static async Task<JsonNode?> Deserialize(string filename, NestedTextSerializerOptions? options = null)
+    public static async Task<JsonNode?> Deserialize(Stream stream, NestedTextSerializerOptions? options = null, bool leaveOpen = false)
     {
-        using var stream = File.OpenRead(filename);
+        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: leaveOpen);
+        return await Deserialize(reader, options);
+    }
+
+    public static async Task<JsonNode?> Deserialize(FileInfo file, NestedTextSerializerOptions? options = null)
+    {
+        using var stream = file.OpenRead();
         return await Deserialize(stream, options);
     }
+
+    public static Task<JsonNode?> Deserialize(string nestedText, NestedTextSerializerOptions? options = null)
+        => Deserialize(new StringReader(nestedText), options);
 
     abstract record ParseResult(string Line, int LineIndex, string Indent, string? Value);
     sealed record KeyParseResult(string Line, int LineIndex, string Indent, string Key, string? Value) : ParseResult(Line, LineIndex, Indent, Value);
@@ -111,7 +119,7 @@ public static class NestedTextSerializer
     //}
 
 
-    static async Task<(ParseResult? ParseResult, JsonNode? Node)> Parse(StreamReader reader, ParseResult? parseResult, int indent, NestedTextSerializerOptions options)
+    static async Task<(ParseResult? ParseResult, JsonNode? Node)> Parse(TextReader reader, ParseResult? parseResult, int indent, NestedTextSerializerOptions options)
     {
         ParseResult? prevParseResult = null;
         List<string>? items = null;
@@ -138,7 +146,7 @@ public static class NestedTextSerializer
             }
         }
 
-        static async Task<ParseResult?> NextResult(StreamReader reader, ParseResult? parseResult)
+        static async Task<ParseResult?> NextResult(TextReader reader, ParseResult? parseResult)
         {
             if (await reader.ReadLineAsync() is not string line)
                 return null;

@@ -20,7 +20,7 @@ public class NestedTextTests
             await Assert.ThrowsExceptionAsync<NestedTextException>(() => NestedTextSerializer.Deserialize(ntFile));
         else
         {
-            var jsonNode = await NestedTextSerializer.Deserialize(ntFile);
+            var jsonNode = await NestedTextSerializer.Deserialize(new FileInfo(ntFile));
             using var stream = File.OpenRead(jsonFile);
             var expected = await JsonSerializer.DeserializeAsync<JsonNode>(stream);
             Assert.AreEqual(expected?.ToJsonString(), jsonNode?.ToJsonString());
