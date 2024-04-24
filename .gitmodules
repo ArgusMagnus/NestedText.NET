@@ -1,0 +1,3 @@
+[submodule "NestedText.Tests/official_tests"]
+	path = NestedText.Tests/official_tests
+	url = https://github.com/KenKundert/nestedtext_tests.git
