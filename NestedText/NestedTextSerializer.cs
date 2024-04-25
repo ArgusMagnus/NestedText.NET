@@ -58,7 +58,7 @@ public static class NestedTextSerializer
         var lineIdx = parseResult?.LineIndex ?? 0;
         JsonNode? node = null;
 
-        static void AddPrevious(JsonNode? node, ParseResult? parseResult, ParseResult? prevParseResult)
+        static JsonNode? AddPrevious(JsonNode? node, ParseResult? parseResult, ParseResult? prevParseResult, List<string>? items)
         {
             if (prevParseResult is KeyParseResult key)
             {
@@ -76,24 +76,30 @@ public static class NestedTextSerializer
                 if (parseResult is null || prevParseResult.Indent.Length == parseResult.Indent.Length)
                     arr.Add("");
             }
+            else if (prevParseResult is MultilineParseResult multiline && parseResult is not MultilineParseResult)
+            {
+                if (items is null || node is not null)
+                    throw new NestedTextException("Invalid line", parseResult?.Line ?? "", parseResult?.LineIndex ?? -1);
+                node = string.Join('\n', items);
+            }
+            return node;
         }
 
         static async Task<ParseResult?> NextResult(TextReader reader, ParseResult? parseResult)
         {
-            if (await reader.ReadLineAsync() is not string line)
-                return null;
-            return ParseLine(line, (parseResult?.LineIndex + 1) ?? 0);
+            while (true)
+            {
+                if (await reader.ReadLineAsync() is not string line)
+                    return null;
+                parseResult = ParseLine(line, (parseResult?.LineIndex + 1) ?? 0);
+                if (parseResult is not CommentParseResult)
+                    return parseResult;
+            }
         }
 
         for (parseResult ??= await NextResult(reader, parseResult); parseResult is not null; (parseResult, prevParseResult) = (await NextResult(reader, parseResult), parseResult))
         {
-            if (parseResult is CommentParseResult)
-            {
-                parseResult = prevParseResult;
-                continue;
-            }
-
-            AddPrevious(node, parseResult, prevParseResult);
+            node = AddPrevious(node, parseResult, prevParseResult, items);
 
             if (parseResult.Indent.Length > indent)
             {
@@ -103,7 +109,7 @@ public static class NestedTextSerializer
 
                 if (node is JsonObject obj)
                 {
-                    if (prevParseResult is not KeyParseResult k)
+                    if (prevParseResult is not KeyParseResult k || k.Value is not null)
                         throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
                     obj[k.Key] = subNode;
                 }
@@ -115,14 +121,14 @@ public static class NestedTextSerializer
                 //(parseResult, prevParseResult) = (nextParseResult, parseResult);
                 parseResult = nextParseResult;
                 if (parseResult is null)
-                    break;
+                    continue;
             }
 
             if (parseResult.Indent.Length < indent)
             {
                 if (prevParseResult is KeyParseResult k && node is JsonObject obj && !obj.ContainsKey(k.Key))
                     throw new NestedTextException("Invalid line", parseResult?.Line ?? "", parseResult?.LineIndex ?? -1);
-                break;
+                return (parseResult, node);
             }
 
             if (parseResult is KeyParseResult key)
@@ -162,14 +168,7 @@ public static class NestedTextSerializer
                 throw new NestedTextException("Invalid line", parseResult.Line, parseResult.LineIndex);
         }
 
-        AddPrevious(node, parseResult, prevParseResult);
-
-        if (items is not null)
-        {
-            if (node is not null)
-                throw new NestedTextException("Invalid line", parseResult?.Line ?? "", parseResult?.LineIndex ?? -1);
-            node = string.Join('\n', items);
-        }
+        node = AddPrevious(node, parseResult, prevParseResult, items);
 
         return (parseResult, node);
     }

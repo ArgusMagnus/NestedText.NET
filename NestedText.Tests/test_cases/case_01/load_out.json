@@ -1,0 +1,16 @@
+{
+  "BinProdAssigned": {
+    "Class": "ProcessInfo",
+    "de": "Artikel automatisch der Zelle {BinNo:E:Bins} zugewiesen\nNeues Produkt {NewProdId}, Alte Produkt {OldProdId}",
+    "en": "Product auto assigned to Bin {BinNo:E:Bins}\nNew product {NewProdId}, old product {OldProdId}"
+  },
+  "JobNotFound": {
+    "Class": "SystemError",
+    "de": "Linie {LineNo:E:Lines}: Aufbereitung misslungen, weil der Auftrag {JobId} nicht gefunden wurde",
+    "en": "Line {LineNo:E:Lines}: Prepare failed because Job {JobId} not found"
+  },
+  "RcpImportFailed": {
+    "Class": "SystemError",
+    "de": "Rezept {Filename} import misslungen !"
+  }
+}
