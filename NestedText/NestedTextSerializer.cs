@@ -32,7 +32,11 @@ public static class NestedTextSerializer
 
     public static async Task<JsonNode?> Deserialize(Stream stream, NestedTextSerializerOptions? options = null, bool leaveOpen = false)
     {
-        using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: leaveOpen);
+        using var reader = new StreamReader(stream, Encoding.UTF8,
+#if NETSTANDARD2_0
+            detectEncodingFromByteOrderMarks: false, bufferSize: 4096,
+#endif
+            leaveOpen: leaveOpen);
         return await Deserialize(reader, options);
     }
 
@@ -80,7 +84,13 @@ public static class NestedTextSerializer
             {
                 if (items is null || node is not null)
                     throw new NestedTextException("Invalid line", parseResult?.Line ?? "", parseResult?.LineIndex ?? -1);
-                node = string.Join('\n', items);
+                node = string.Join(
+#if NETSTANDARD2_0
+                    "\n"
+#else
+                    '\n'
+#endif
+                    , items);
             }
             return node;
         }
